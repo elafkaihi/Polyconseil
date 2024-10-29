@@ -1,0 +1,75 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: mycluster
+  region: eu-west-3
+  version: "1.27"
+
+vpc:
+  cidr: "10.0.0.0/16"
+  nat:
+    gateway: Single
+  clusterEndpoints:
+    publicAccess: true
+    privateAccess: true
+
+managedNodeGroups:
+  - name: public-ng
+    desiredCapacity: 2
+    instanceType: t3.medium
+    privateNetworking: false
+    availabilityZones: ["eu-west-3a"]
+    labels:
+      subnet-type: public
+      topology.kubernetes.io/zone: eu-west-3a
+    tags:
+      k8s.io/cluster-autoscaler/enabled: "true"
+    ssh:
+      publicKeyName: mykey
+    iam:
+      withAddonPolicies:
+        efs: true
+        albIngress: true
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy
+
+
+  - name: private-ng-1
+    desiredCapacity: 2
+    instanceType: t3.medium
+    privateNetworking: true
+    availabilityZones: ["eu-west-3a"]
+    labels:
+      subnet-type: private
+      az: zone-1
+      topology.kubernetes.io/zone: eu-west-3a
+    tags:
+      k8s.io/cluster-autoscaler/enabled: "true"
+    ssh:
+      publicKeyName: mykey
+    iam:
+      withAddonPolicies:
+        efs: true
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy
+
+
+  - name: private-ng-2
+    desiredCapacity: 2
+    instanceType: t3.medium
+    privateNetworking: true
+    availabilityZones: ["eu-west-3b"]
+    labels:
+      subnet-type: private
+      az: zone-2
+      topology.kubernetes.io/zone: eu-west-3b
+    tags:
+      k8s.io/cluster-autoscaler/enabled: "true"
+    ssh:
+      publicKeyName: mykey
+    iam:
+      withAddonPolicies:
+        efs: true
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy

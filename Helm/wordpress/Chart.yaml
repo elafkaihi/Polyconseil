@@ -1,0 +1,18 @@
+apiVersion: v2
+name: wordpress
+description: A Helm chart for WordPress with MySQL replication on Kubernetes
+version: 0.1.0
+appVersion: "6.4"
+dependencies:
+  - name: mysql
+    version: ^9.0.0
+    repository: https://charts.bitnami.com/bitnami
+    condition: mysql.enabled
+maintainers:
+  - name: Your Name
+    email: your.email@example.com
+keywords:
+  - wordpress
+  - mysql
+  - aws
+  - eks

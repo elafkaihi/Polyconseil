@@ -1,0 +1,72 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+        AWS_DEFAULT_REGION = 'eu-west-3'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Terraform Init and Apply') {
+            steps {
+                dir('terraform') {
+                    sh 'terraform init'
+                    sh 'terraform apply -auto-approve'
+                }
+            }
+        }
+
+        stage('Update Configurations') {
+            steps {
+                sh 'chmod +x update_config.sh'
+               eksctl create cluster -f createcluster.yml sh '''
+                    ./update_config.sh \
+                    $(terraform -chdir=terraform output -raw vpc_id) \
+                    $(terraform -chdir=terraform output -raw public_subnet_id) \
+                    $(terraform -chdir=terraform output -raw private_subnet_1_id) \
+                    $(terraform -chdir=terraform output -raw private_subnet_2_id) \
+                    $(terraform -chdir=terraform output -raw efs_id)
+                '''
+            }
+        }
+
+        stage('Create EKS Cluster') {
+            steps {
+                sh 'eksctl create cluster -f cluster.yaml'
+            }
+        }
+        
+        stage('Install EFS CSI Driver') {
+            steps {
+                script {
+                    sh """
+                        helm repo add aws-efs-csi-driver https://kubernetes-sigs.github.io/aws-efs-csi-driver/
+                        helm repo update
+                        helm upgrade --install aws-efs-csi-driver aws-efs-csi-driver/aws-efs-csi-driver \
+                            --namespace kube-system \
+                            --set controller.serviceAccount.create=true
+                    """
+                }
+            }
+        }
+
+        stage('Deploy WordPress with Helm') {
+            steps {
+                sh 'helm install my-wordpress ./wordpress'
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}

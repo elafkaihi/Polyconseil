@@ -1,0 +1,29 @@
+{{- if .Values.storage.efs.enabled }}
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: efs-sc
+  labels:
+    {{- include "wordpress.labels" . | nindent 4 }}
+provisioner: efs.csi.aws.com
+parameters:
+  fileSystemId: {{ .Values.storage.efs.fileSystemId }}
+  provisioningMode: {{ .Values.storage.efs.provisioningMode }}
+  directoryPerms: {{ .Values.storage.efs.directoryPerms | quote }}
+{{- end }}
+---
+{{- if .Values.wordpress.persistence.enabled }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "wordpress.fullname" . }}-pvc
+  labels:
+    {{- include "wordpress.labels" . | nindent 4 }}
+spec:
+  storageClassName: {{ .Values.wordpress.persistence.storageClass }}
+  accessModes:
+    - {{ .Values.wordpress.persistence.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.wordpress.persistence.size }}
+{{- end }}
