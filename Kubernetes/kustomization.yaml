@@ -1,11 +1,16 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+
 secretGenerator:
   - name: mysql-pass
     literals:
       - password=elmehdilafkaihi
-      - replication_password=elmehdilafkaihi
+      - replication_password=elmehdilafkaihi1
+generatorOptions:
+  disableNameSuffixHash: true
+
 resources:
   - create-storage.yaml
+  - mysql-services.yaml
   - mysql-deployment.yaml
   - wordpress-deployment.yaml

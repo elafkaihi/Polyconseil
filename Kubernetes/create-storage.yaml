@@ -1,5 +1,5 @@
-kind: StorageClass
 apiVersion: storage.k8s.io/v1
+kind: StorageClass
 metadata:
   name: efs-sc
 provisioner: efs.csi.aws.com
@@ -8,8 +8,8 @@ parameters:
   provisioningMode: efs-ap
   directoryPerms: "777"
 ---
-kind: PersistentVolumeClaim
 apiVersion: v1
+kind: PersistentVolumeClaim
 metadata:
   name: wp-pvc
 spec:

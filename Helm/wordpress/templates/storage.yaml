@@ -1,6 +1,6 @@
 {{- if .Values.storage.efs.enabled }}
-kind: StorageClass
 apiVersion: storage.k8s.io/v1
+kind: StorageClass
 metadata:
   name: efs-sc
   labels:
@@ -13,8 +13,8 @@ parameters:
 {{- end }}
 ---
 {{- if .Values.wordpress.persistence.enabled }}
-kind: PersistentVolumeClaim
 apiVersion: v1
+kind: PersistentVolumeClaim
 metadata:
   name: {{ include "wordpress.fullname" . }}-pvc
   labels:

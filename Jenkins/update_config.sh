@@ -13,8 +13,11 @@ private_subnet_1_id=$3
 private_subnet_2_id=$4
 efs_id=$5
 
-# Update values.yaml using sed
-sed -i "s|infrastructure:\n  vpc:\n    id:.*|infrastructure:\n  vpc:\n    id: ${vpc_id}|g" values.yaml
-sed -i "s|    public:.*|    public: ${public_subnet_id}|g" values.yaml
-sed -i "s|    private:\n      -.*\n      -.*|    private:\n      - ${private_subnet_1_id}\n      - ${private_subnet_2_id}|g" values.yaml
-sed -i "s|    fileSystemId:.*|    fileSystemId: ${efs_id}|g" values.yaml
+# Update cluster.yaml using yq
+yq e -i ".vpc.id = \"${vpc_id}\"" cluster.yaml
+yq e -i ".vpc.subnets.public.\"eu-west-3a\"[0] = \"${public_subnet_id}\"" cluster.yaml
+yq e -i ".vpc.subnets.private.\"eu-west-3a\"[0] = \"${private_subnet_1_id}\"" cluster.yaml
+yq e -i ".vpc.subnets.private.\"eu-west-3b\"[0] = \"${private_subnet_2_id}\"" cluster.yaml
+
+# Update values.yaml for EFS
+yq e -i ".storage.efs.fileSystemId = \"${efs_id}\"" values.yaml

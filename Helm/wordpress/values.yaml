@@ -8,11 +8,11 @@ wordpress:
     repository: wordpress
     tag: 6.4-apache
     pullPolicy: IfNotPresent
-  
+
   service:
     type: LoadBalancer
     port: 80
-  
+
   resources:
     requests:
       cpu: 500m
@@ -45,46 +45,50 @@ mysql:
   enabled: true
   architecture: replication
   auth:
-    rootPassword: ""  # Will be auto-generated if not set
-    replicationPassword: ""  # Will be auto-generated if not set
+    existingSecret: mysql-secret
+    rootPassword: "elmehdilafkaihi"           # Replace with your actual root password
+    replicationPassword: "elmehdilafkaihi1"  # Replace with your actual replication password
+    password: "elmehdilafkaihi1"          # Replace with your actual WordPress DB password
     database: wordpress
     username: wordpress
-    password: ""  # Will be auto-generated if not set
-  
   primary:
+    nodeSelector:
+      subnet-type: private
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: subnet-type
+                  operator: In
+                  values:
+                    - private
     persistence:
       enabled: true
-      storageClass: "efs-sc"
+      storageClass: "gp2"   # Use EBS StorageClass for MySQL
       size: 10Gi
-    
-    configuration: |-
-      [mysqld]
-      log-bin=mysql-bin
-      binlog-format=ROW
-      server-id=1
-      log_slave_updates=1
-      gtid_mode=ON
-      enforce-gtid-consistency=ON
-  
   secondary:
     replicaCount: 1
+    nodeSelector:
+      subnet-type: private
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: subnet-type
+                  operator: In
+                  values:
+                    - private
     persistence:
       enabled: true
-      storageClass: "efs-sc"
+      storageClass: "gp2"   # Use EBS StorageClass for MySQL
       size: 10Gi
-    
-    configuration: |-
-      [mysqld]
-      server-id=2
-      super-read-only=1
-      log_slave_updates=1
-      gtid_mode=ON
-      enforce-gtid-consistency=ON
 
 # Storage Configuration
 storage:
   efs:
     enabled: true
-    fileSystemId: "fs-078a39d601f0ea2b2"
+    fileSystemId: "fs-078a39d601f0ea2b2"  # Replace with your actual EFS File System ID
     provisioningMode: "efs-ap"
     directoryPerms: "777"

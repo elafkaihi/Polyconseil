@@ -26,7 +26,7 @@ pipeline {
         stage('Update Configurations') {
             steps {
                 sh 'chmod +x update_config.sh'
-               eksctl create cluster -f createcluster.yml sh '''
+                sh '''
                     ./update_config.sh \
                     $(terraform -chdir=terraform output -raw vpc_id) \
                     $(terraform -chdir=terraform output -raw public_subnet_id) \
@@ -45,15 +45,13 @@ pipeline {
         
         stage('Install EFS CSI Driver') {
             steps {
-                script {
-                    sh """
-                        helm repo add aws-efs-csi-driver https://kubernetes-sigs.github.io/aws-efs-csi-driver/
-                        helm repo update
-                        helm upgrade --install aws-efs-csi-driver aws-efs-csi-driver/aws-efs-csi-driver \
-                            --namespace kube-system \
-                            --set controller.serviceAccount.create=true
-                    """
-                }
+                sh '''
+                    helm repo add aws-efs-csi-driver https://kubernetes-sigs.github.io/aws-efs-csi-driver/
+                    helm repo update
+                    helm upgrade --install aws-efs-csi-driver aws-efs-csi-driver/aws-efs-csi-driver \
+                        --namespace kube-system \
+                        --set controller.serviceAccount.create=true
+                '''
             }
         }
 

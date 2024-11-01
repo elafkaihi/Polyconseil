@@ -21,11 +21,11 @@ metadata:
   labels:
     {{- include "wordpress.labels" . | nindent 4 }}
 spec:
-  selector:
+  replicas: 2  
     matchLabels:
       {{- include "wordpress.selectorLabels" . | nindent 6 }}
   strategy:
-    type: Recreate
+    type: RollingUpdate  
   template:
     metadata:
       labels:
@@ -45,13 +45,13 @@ spec:
           imagePullPolicy: {{ .Values.wordpress.image.pullPolicy }}
           env:
             - name: WORDPRESS_DB_HOST
-              value: {{ .Release.Name }}-mysql-primary
+              value: {{ include "mysql.fullname" . }}-primary
             - name: WORDPRESS_DB_USER
               value: {{ .Values.mysql.auth.username }}
             - name: WORDPRESS_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-mysql
+                  name: mysql-secret
                   key: mysql-password
             - name: WORDPRESS_DB_NAME
               value: {{ .Values.mysql.auth.database }}
@@ -65,7 +65,7 @@ spec:
           {{- end }}
           volumeMounts:
             - name: wordpress-data
-              mountPath: /var/www/html
+              mountPath: /var/www/html/wp-content   
           livenessProbe:
             httpGet:
               path: /wp-login.php

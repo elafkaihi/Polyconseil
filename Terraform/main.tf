@@ -22,7 +22,7 @@ resource "aws_internet_gateway" "main" {
 resource "aws_subnet" "public" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.1.0/24"
-  availability_zone = "us-east-1a"  # Change this as needed
+  availability_zone = "eu-west-3a"  # Change this as needed
 
   tags = {
     Name = "wordpress-public-subnet"
@@ -32,7 +32,7 @@ resource "aws_subnet" "public" {
 resource "aws_subnet" "private1" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.2.0/24"
-  availability_zone = "us-east-1b"  # Change this as needed
+  availability_zone = "eu-west-3b"  # Change this as needed
 
   tags = {
     Name = "wordpress-private-subnet-1"
@@ -42,7 +42,7 @@ resource "aws_subnet" "private1" {
 resource "aws_subnet" "private2" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.3.0/24"
-  availability_zone = "us-east-1c"  # Change this as needed
+  availability_zone = "eu-west-3c"  # Change this as needed
 
   tags = {
     Name = "wordpress-private-subnet-2"
