@@ -46,9 +46,9 @@ mysql:
   architecture: replication
   auth:
     existingSecret: mysql-secret
-    rootPassword: "elmehdilafkaihi"           # Replace with your actual root password
-    replicationPassword: "elmehdilafkaihi1"  # Replace with your actual replication password
-    password: "elmehdilafkaihi1"          # Replace with your actual WordPress DB password
+    rootPassword: "elmehdilafkaihi"           
+    replicationPassword: "elmehdilafkaihi1"  
+    password: "elmehdilafkaihi1"          
     database: wordpress
     username: wordpress
   primary:
