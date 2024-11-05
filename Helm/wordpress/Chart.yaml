@@ -5,7 +5,7 @@ version: 0.1.0
 appVersion: "6.4"
 dependencies:
   - name: mysql
-    version: "9.4.4"  # Update to the latest compatible version
+    version: "9.4.4"  
     repository: https://charts.bitnami.com/bitnami
     condition: mysql.enabled
 maintainers:
